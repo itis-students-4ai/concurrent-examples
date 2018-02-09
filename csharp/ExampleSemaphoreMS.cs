@@ -1,7 +1,7 @@
 using System;
 using System.Threading;
 
-public class Example
+public class ExampleSemaphoreMS
 {
     // A semaphore that simulates a limited resource pool.
     //
