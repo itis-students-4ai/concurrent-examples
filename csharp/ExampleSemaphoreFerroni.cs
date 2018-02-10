@@ -1,23 +1,20 @@
 using System;
 using System.Threading;
 
-public class ExampleSemaphoreMS
+public class ExampleSemaphoreFerroni
 {
     // A semaphore that simulates a limited resource pool.
     //
     private static Semaphore _pool;
 
-    // A padding interval to make the output more orderly.
-    private static int _padding;
-
-    public static void Main1()
+    public static void Main()
     {
         // Create a semaphore that can satisfy up to three
         // concurrent requests. Use an initial count of zero,
         // so that the entire semaphore count is initially
         // owned by the main program thread.
         //
-        _pool = new Semaphore(0, 3);
+        _pool = new Semaphore(0, 1);
 
         // Create and start five numbered threads. 
         //
@@ -36,13 +33,13 @@ public class ExampleSemaphoreMS
         Thread.Sleep(500);
 
         // The main thread starts out holding the entire
-        // semaphore count. Calling Release(3) brings the 
+        // semaphore count. Calling Release(1) brings the 
         // semaphore count back to its maximum value, and
         // allows the waiting threads to enter the semaphore,
         // up to three at a time.
         //
-        Console.WriteLine("Main thread calls Release(3).");
-        _pool.Release(3);
+        Console.WriteLine("Main thread calls Release(1).");
+        _pool.Release(1);
 
         Console.WriteLine("Main thread exits.");
     }
@@ -55,19 +52,17 @@ public class ExampleSemaphoreMS
             "and waits for the semaphore.", num);
         _pool.WaitOne();
 
-        // A padding interval to make the output more orderly.
-        int padding = Interlocked.Add(ref _padding, 100);
-
         Console.WriteLine("Thread {0} enters the semaphore.", num);
 
         // The thread's "work" consists of sleeping for 
         // about a second. Each thread "works" a little 
         // longer, just to make the output more orderly.
         //
-        Thread.Sleep(1000 + padding);
+        Thread.Sleep(1000);
 
         Console.WriteLine("Thread {0} releases the semaphore.", num);
-        Console.WriteLine("Thread {0} previous semaphore count: {1}",
-            num, _pool.Release());
+        _pool.Release();
+        //Console.WriteLine("Thread {0} previous semaphore count: {1}",
+        //    num, );
     }
 }
