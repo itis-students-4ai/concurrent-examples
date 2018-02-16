@@ -7,7 +7,7 @@ public class ExampleSemaphoreFerroni
     //
     private static Semaphore _pool;
 
-    public static void Main()
+    public static void Main2()
     {
         // Create a semaphore that can satisfy up to three
         // concurrent requests. Use an initial count of zero,
