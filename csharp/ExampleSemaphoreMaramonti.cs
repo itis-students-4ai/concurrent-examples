@@ -5,11 +5,14 @@ using System.IO;
 public class ExampleSemaphore
 {
     private static Semaphore semaforo;
+    private static Semaphore chiusura;
+    private static int cont_thread;
     private static StreamWriter sw;
 
     public static void Main()
     {
         semaforo = new Semaphore(1, 1);
+        chiusura = new Semaphore(0, 1);
 
         sw = new StreamWriter("MyFile");
 
@@ -21,13 +24,9 @@ public class ExampleSemaphore
             t.Start(i);
         }
 
-        Thread.Sleep(500);
-        semaforo.WaitOne();
+        chiusura.WaitOne();
         sw.Close();
-
-        semaforo.Release(1);
-
-        
+        chiusura.Release(1);
     }
 
     private static void Worker(object num)
@@ -38,6 +37,12 @@ public class ExampleSemaphore
         Thread.Sleep(1000);
 
         sw.WriteLine("Scrivo La seconda riga\n");
+        cont_thread++;
         semaforo.Release(1);
+        
+        if (cont_thread == 5) {
+            chiusura.Release(1);
+        }
+
     }
 }
