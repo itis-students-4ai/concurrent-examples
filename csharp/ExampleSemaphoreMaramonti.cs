@@ -9,7 +9,7 @@ public class ExampleSemaphore
     private static int cont_thread;
     private static StreamWriter sw;
 
-    public static void Main()
+    public static void Main2()
     {
         semaforo = new Semaphore(1, 1);
         chiusura = new Semaphore(0, 1);

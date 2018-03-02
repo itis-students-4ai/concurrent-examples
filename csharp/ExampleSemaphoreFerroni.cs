@@ -5,20 +5,28 @@ public class ExampleSemaphoreFerroni
 {
     // A semaphore that simulates a limited resource pool.
     //
-    private static Semaphore _pool;
+    private static Semaphore _chiusura;
+    private static Semaphore _scrittura;
 
-    public static void Main2()
+    const int N_THREADS = 5;
+    private static int cont = N_THREADS;
+
+    
+
+    public static void Main()
     {
         // Create a semaphore that can satisfy up to three
         // concurrent requests. Use an initial count of zero,
         // so that the entire semaphore count is initially
         // owned by the main program thread.
         //
-        _pool = new Semaphore(0, 1);
+        _chiusura = new Semaphore(0, 0);
+        _scrittura = new Semaphore(0, 1);
+
 
         // Create and start five numbered threads. 
         //
-        for(int i = 1; i <= 5; i++)
+        for(int i = 1; i <= N_THREADS; i++)
         {
             Thread t = new Thread(new ParameterizedThreadStart(Worker));
 
@@ -50,7 +58,7 @@ public class ExampleSemaphoreFerroni
         // semaphore.
         Console.WriteLine("Thread {0} begins " +
             "and waits for the semaphore.", num);
-        _pool.WaitOne();
+        _scrittura.WaitOne();
 
         Console.WriteLine("Thread {0} enters the semaphore.", num);
 
@@ -58,10 +66,9 @@ public class ExampleSemaphoreFerroni
         // about a second. Each thread "works" a little 
         // longer, just to make the output more orderly.
         //
-        Thread.Sleep(1000);
 
         Console.WriteLine("Thread {0} releases the semaphore.", num);
-        _pool.Release();
+        _scrittura.Release();
         //Console.WriteLine("Thread {0} previous semaphore count: {1}",
         //    num, );
     }
