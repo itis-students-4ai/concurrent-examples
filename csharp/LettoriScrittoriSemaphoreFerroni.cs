@@ -1,26 +1,34 @@
+/* 
+ * This software is part of `concurrent-examples` project
+ * created during students class 4AI ITIS Fabriano AS 2017-2018
+ * Authors:
+ * - Luca Ferroni <luca@befair.it>
+ * - Marco Maramonti <...>
+ * 
+ * This work is released with LICENSE GPLv3, so you have the right
+ * to use, copy, modify and share your modifications as long
+ * as you preserve this note and you redistribute derivative versions with
+ * the same LICENSE.
+ */
+
 using System;
 using System.Threading;
 
-public class ExampleSemaphoreFerroni
+public class LettoriScrittoriSemaphoreFerroni
 {
-    // A semaphore that simulates a limited resource pool.
-    //
-    private static Semaphore _chiusura;
-    private static Semaphore _scrittura;
+    // Implementation of the ordered write to a file
+    // with the approach of readers/writers.
+    // (ref. book at page 32-33)
+
+    // Define 2 semaphores
+    private static Semaphore _scrittura = new Semaphore(0,0);
+    private static Semaphore _chiusura = new Semaphore(0,0);
+    private static StreamWriter sw;
 
     const int N_THREADS = 5;
-    private static int cont = N_THREADS;
-
 
     public static void Main()
     {
-        // Create a semaphore that can satisfy up to three
-        // concurrent requests. Use an initial count of zero,
-        // so that the entire semaphore count is initially
-        // owned by the main program thread.
-        //
-        _chiusura = new Semaphore(0, 0);
-        _scrittura = new Semaphore(0, 1);
 
 
         // Create and start five numbered threads. 
