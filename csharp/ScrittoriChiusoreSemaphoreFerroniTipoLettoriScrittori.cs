@@ -29,7 +29,7 @@ public class ScrittoriChiusoreSemaphoreFerroniTipoLettoriScrittori
 
     const int N_THREADS = 5;
 
-    public static void Main()
+    public static void Main2()
     {
 
         sw = new StreamWriter("MyFile");

@@ -26,7 +26,7 @@ public class LettoriScrittoriSemaphoreFerroni
     private static Semaphore _scrittura = new Semaphore(0,1);
     private static int cont_thread;
 
-    const int FILENAME = "MyFile";
+    const string FILENAME = "MyFile";
     const int N_THREADS = 5;
     const string EXIT_COMMAND = "exit";
 
@@ -47,7 +47,8 @@ public class LettoriScrittoriSemaphoreFerroni
         while (command != EXIT_COMMAND) {
             // Legge un comando da standard input
             // e lo scrive nel file appena il semaforo gli consente di passare
-            command = Console.ReadLine("Inserire comando ["+ EXIT_COMMAND +" per uscire] > ");
+            Console.Write("Inserire comando ["+ EXIT_COMMAND +" per uscire] > ");
+            command = Console.ReadLine();
             Console.WriteLine("Attendo l'accesso al semaforo di scrittura sul file...");
             _scrittura.WaitOne();
             sw.WriteLine(command);
@@ -62,7 +63,8 @@ public class LettoriScrittoriSemaphoreFerroni
     {
         // Metodo per i Thread lettori
         // adattato da esempio progetto 3, pag. 33
-        while (true) {
+        Boolean exit = false;
+        while (!exit) {
 
             _lettura.WaitOne();
             cont_thread++;
@@ -77,7 +79,8 @@ public class LettoriScrittoriSemaphoreFerroni
             foreach (string command in commands) {
                 Console.WriteLine("[" + num + "]: " + command);
                 if (command == EXIT_COMMAND) {
-                    break
+                    exit= true;
+                    break;
                 }
             }
             
