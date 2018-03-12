@@ -21,8 +21,9 @@ public class LettoriScrittoriSemaphoreFerroni
     // (ref. book at page 32-33)
 
     // Define 2 semaphores
-    private static Semaphore _scrittura = new Semaphore(0,0);
-    private static Semaphore _chiusura = new Semaphore(0,0);
+    private static Semaphore _scrittura = new Semaphore(1,1);
+    private static Semaphore _chiusura = new Semaphore(0,1);
+    private static int cont_thread;
     private static StreamWriter sw;
 
     const int N_THREADS = 5;
@@ -30,53 +31,42 @@ public class LettoriScrittoriSemaphoreFerroni
     public static void Main()
     {
 
+        sw = new StreamWriter("MyFile");
 
         // Create and start five numbered threads. 
-        //
         for(int i = 1; i <= N_THREADS; i++)
         {
             Thread t = new Thread(new ParameterizedThreadStart(Worker));
-
             // Start the thread, passing the number.
-            //
             t.Start(i);
         }
 
-        // Wait for half a second, to allow all the
-        // threads to start and to block on the semaphore.
-        //
-        Thread.Sleep(500);
-
-        // The main thread starts out holding the entire
-        // semaphore count. Calling Release(1) brings the 
-        // semaphore count back to its maximum value, and
-        // allows the waiting threads to enter the semaphore,
-        // up to three at a time.
-        //
-        Console.WriteLine("Main thread calls Release(1).");
-        _pool.Release(1);
+        // Avvia la procedura di chiusura solo quando 
+        // il semaforo gli consente di entrare nella regione critica
+        _chiusura.WaitOne();
+        sw.WriteLine("Main thread write the last line.");
+        sw.Close();
+        _chiusura.Release(1);
 
         Console.WriteLine("Main thread exits.");
     }
 
     private static void Worker(object num)
     {
-        // Each worker thread begins by requesting the
-        // semaphore.
-        Console.WriteLine("Thread {0} begins " +
-            "and waits for the semaphore.", num);
         _scrittura.WaitOne();
+        sw.WriteLine("Scrivo la prima riga");
+        
+        // Questo sleep è solo per dimostrare la potenza
+        // della sincronizzazione tramite semafori
+        Thread.Sleep(1000);
 
-        Console.WriteLine("Thread {0} enters the semaphore.", num);
+        sw.WriteLine("Scrivo La seconda riga");
 
-        // The thread's "work" consists of sleeping for 
-        // about a second. Each thread "works" a little 
-        // longer, just to make the output more orderly.
-        //
-
-        Console.WriteLine("Thread {0} releases the semaphore.", num);
-        _scrittura.Release();
-        //Console.WriteLine("Thread {0} previous semaphore count: {1}",
-        //    num, );
+        cont_thread++;
+        if (cont_thread == 5) {
+            // Rilascia il semaforo per la chiusura
+            _chiusura.Release(1);
+        }
+        _scrittura.Release(1);
     }
 }
