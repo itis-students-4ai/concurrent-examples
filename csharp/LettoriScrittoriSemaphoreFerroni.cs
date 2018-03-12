@@ -22,17 +22,19 @@ public class LettoriScrittoriSemaphoreFerroni
     // (ref. book at page 32-33)
 
     // Define 2 semaphores
-    private static Semaphore _scrittura = new Semaphore(1,1);
-    private static Semaphore _chiusura = new Semaphore(0,1);
+    private static Semaphore _lettura = new Semaphore(1,1);
+    private static Semaphore _scrittura = new Semaphore(0,1);
     private static int cont_thread;
-    private static StreamWriter sw;
 
+    const int FILENAME = "MyFile";
     const int N_THREADS = 5;
+    const string EXIT_COMMAND = "exit";
 
     public static void Main()
     {
 
-        sw = new StreamWriter("MyFile");
+        StreamWriter sw = new StreamWriter(FILENAME);
+        string command = "";
 
         // Create and start five numbered threads. 
         for(int i = 1; i <= N_THREADS; i++)
@@ -42,32 +44,51 @@ public class LettoriScrittoriSemaphoreFerroni
             t.Start(i);
         }
 
-        // Avvia la procedura di chiusura solo quando 
-        // il semaforo gli consente di entrare nella regione critica
-        _chiusura.WaitOne();
-        sw.WriteLine("Main thread write the last line.");
-        sw.Close();
-        _chiusura.Release(1);
+        while (command != EXIT_COMMAND) {
+            // Legge un comando da standard input
+            // e lo scrive nel file appena il semaforo gli consente di passare
+            command = Console.ReadLine("Inserire comando ["+ EXIT_COMMAND +" per uscire] > ");
+            Console.WriteLine("Attendo l'accesso al semaforo di scrittura sul file...");
+            _scrittura.WaitOne();
+            sw.WriteLine(command);
+            Console.WriteLine("Ho scritto il nuovo comando");
+            _scrittura.Release(1);
+        }
 
         Console.WriteLine("Main thread exits.");
     }
 
     private static void Worker(object num)
     {
-        _scrittura.WaitOne();
-        sw.WriteLine("Scrivo la prima riga");
-        
-        // Questo sleep è solo per dimostrare la potenza
-        // della sincronizzazione tramite semafori
-        Thread.Sleep(1000);
+        // Metodo per i Thread lettori
+        // adattato da esempio progetto 3, pag. 33
+        while (true) {
 
-        sw.WriteLine("Scrivo La seconda riga");
+            _lettura.WaitOne();
+            cont_thread++;
+            if (cont_thread == 1) {
+                _scrittura.WaitOne();
+            }
+            _lettura.Release();
 
-        cont_thread++;
-        if (cont_thread == 5) {
-            // Rilascia il semaforo per la chiusura
-            _chiusura.Release(1);
+            string[] commands = File.ReadAllLines(@FILENAME);
+
+            Console.WriteLine("["+ num + "]: comandi da effettuare");
+            foreach (string command in commands) {
+                Console.WriteLine("[" + num + "]: " + command);
+                if (command == EXIT_COMMAND) {
+                    break
+                }
+            }
+            
+            _lettura.WaitOne();
+            cont_thread--;
+            if (cont_thread == 0) {
+                _scrittura.Release();
+            }
+            _lettura.Release(1);
         }
-        _scrittura.Release(1);
+
+        Console.WriteLine("[" + num + "]: exiting...");
     }
 }
