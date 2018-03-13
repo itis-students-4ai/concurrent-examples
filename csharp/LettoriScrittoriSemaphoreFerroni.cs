@@ -23,7 +23,7 @@ public class LettoriScrittoriSemaphoreFerroni
 
     // Define 2 semaphores
     private static Semaphore _lettura = new Semaphore(1,1);
-    private static Semaphore _scrittura = new Semaphore(0,1);
+    private static Semaphore _scrittura = new Semaphore(1,1);
     private static int cont_thread;
 
     const string FILENAME = "MyFile";
